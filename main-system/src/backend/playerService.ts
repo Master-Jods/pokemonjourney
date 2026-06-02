@@ -777,41 +777,26 @@ export async function ensurePokemonInDb(pokedexIdNum: number): Promise<PokemonRo
         .single<PokemonRow>();
       return correctRow || idRow;
     } else {
-      // Delete conflicting row to free up the primary key slot
-      const { error: deleteErr } = await supabase
+      // The slot is occupied by a different Pokémon name.
+      // Update the row in-place directly to bypass foreign key constraint failures!
+      const { data: updated, error: updateError } = await supabase
         .from('pokemon')
-        .delete()
-        .eq('id', pokedexIdNum);
+        .update({
+          pokedex_id: pokedexIdNum,
+          pokemon_name: pokemonName,
+          type: type,
+          region: region,
+          image: image,
+          evolution_stage: evolutionStage,
+          evolves_to: evolvesTo,
+          required_stone: requiredStone,
+        })
+        .eq('id', pokedexIdNum)
+        .select()
+        .single<PokemonRow>();
 
-      if (deleteErr) {
-        // Self-healing for fkey constraints (e.g., evolves_to references)
-        const { data: referencingRows } = await supabase
-          .from('pokemon')
-          .select('id')
-          .eq('evolves_to', pokedexIdNum);
-          
-        fkeyRestoreIds = (referencingRows ?? []).map(r => r.id);
-        
-        if (fkeyRestoreIds.length > 0) {
-          await supabase
-            .from('pokemon')
-            .update({ evolves_to: null })
-            .in('id', fkeyRestoreIds);
-        }
-
-        const { error: secondDeleteErr } = await supabase
-          .from('pokemon')
-          .delete()
-          .eq('id', pokedexIdNum);
-
-        if (secondDeleteErr) {
-          // If delete still fails, move conflicting row to a high temporary ID
-          const temporaryFreeId = idRow.id + 10000;
-          await supabase
-            .from('pokemon')
-            .update({ id: temporaryFreeId })
-            .eq('id', pokedexIdNum);
-        }
+      if (!updateError && updated) {
+        return updated;
       }
     }
   }

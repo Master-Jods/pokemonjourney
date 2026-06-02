@@ -450,24 +450,30 @@ async function ensurePokemonCompatibilityRow(pokedexId, pokemon) {
       return;
     }
 
-    // Primary key conflict: id = pokedexId is occupied by a different Pokemon.
-    // Free up the slot.
-    const { error: deleteErr } = await supabase
+    // Primary key conflict: name doesn't match.
+    // Try to update the row in-place directly to bypass foreign key constraint failures!
+    const { error: updateError } = await supabase
       .from('pokemon')
-      .delete()
+      .update({
+        pokedex_id: pokedexId,
+        pokemon_name: pokemon.pokemon_name,
+        type: normalizeText(pokemon.type),
+        region: normalizeText(pokemon.region),
+        image: normalizeText(pokemon.image),
+        evolution_stage: pokemon.evolution_stage ?? 1,
+        evolves_to: pokemon.evolves_to ?? null,
+        required_stone: pokemon.required_stone ?? null,
+      })
       .eq('id', pokedexId);
 
-    if (deleteErr) {
-      const temporaryFreeId = idRow.id + 10000;
-      await supabase
-        .from('pokemon')
-        .update({ id: temporaryFreeId })
-        .eq('id', pokedexId);
+    if (!updateError) {
+      return;
     }
   }
 
   await supabase.from('pokemon').insert({
     id: pokedexId,
+    pokedex_id: pokedexId,
     pokemon_name: pokemon.pokemon_name,
     type: normalizeText(pokemon.type),
     region: normalizeText(pokemon.region),
@@ -475,7 +481,6 @@ async function ensurePokemonCompatibilityRow(pokedexId, pokemon) {
     evolution_stage: pokemon.evolution_stage ?? 1,
     evolves_to: pokemon.evolves_to ?? null,
     required_stone: pokemon.required_stone ?? null,
-    pokedex_id: null,
   });
 }
 
