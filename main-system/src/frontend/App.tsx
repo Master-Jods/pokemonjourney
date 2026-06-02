@@ -11,7 +11,7 @@ import {
   saveStarterPokemon,
   rewardBadgeToPlayer,
 } from '../backend/playerService';
-import { startBackgroundMusic } from './lib/soundEffects';
+import { startBackgroundMusic, playClickSound, playEvolutionSound } from './lib/soundEffects';
 import {
   ActivityIndicator,
   Animated,
@@ -20,7 +20,7 @@ import {
   Image,
   ImageSourcePropType,
   Modal,
-  Pressable,
+  Pressable as RN_Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -28,6 +28,15 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import React from 'react';
+
+const Pressable = React.forwardRef(({ onPress, ...props }: any, ref: any) => {
+  const handlePress = (e: any) => {
+    playClickSound();
+    if (onPress) onPress(e);
+  };
+  return <RN_Pressable ref={ref} onPress={handlePress} {...props} />;
+});
 import Svg, { Rect } from 'react-native-svg';
 import {
   Backpack,
@@ -412,6 +421,7 @@ export default function App() {
       const numCurrent = parseInt(owned.pokemonDataId, 10);
       const numNext = parseInt(nextId, 10);
       
+      playEvolutionSound();
       setEvolutionAnimation({
         from: {
           id: owned.pokemonDataId,
