@@ -27,6 +27,8 @@ import {
   Text,
   TextInput,
   View,
+  Clipboard,
+  Platform,
 } from 'react-native';
 import React from 'react';
 import Svg, { Rect } from 'react-native-svg';
@@ -963,6 +965,7 @@ function PokedexScreen({ ownedPokemon }: { ownedPokemon: OwnedPokemon[] }) {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function fetchPokemon() {
@@ -1102,6 +1105,16 @@ ${movesText}`;
       .join('\n\n');
   };
 
+  const handleCopy = () => {
+    playClickSound();
+    const text = generateShowdownText();
+    Clipboard.setString(text);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
   if (loading) {
     return (
       <View style={[styles.pageContent, { alignItems: 'center', paddingTop: 40 }]}>
@@ -1234,21 +1247,25 @@ ${movesText}`;
               borderColor: '#E2E8F0',
               marginBottom: 20
             }}>
-              <TextInput
-                multiline={true}
-                editable={false}
-                value={generateShowdownText()}
+              <Text
+                selectable={true}
                 style={{
-                  fontFamily: 'monospace',
+                  fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
                   fontSize: 14,
-                  color: '#334155'
+                  color: '#334155',
+                  lineHeight: 20
                 }}
-              />
+              >
+                {generateShowdownText()}
+              </Text>
             </ScrollView>
 
             <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'flex-end' }}>
               <Pressable
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  playClickSound();
+                  setModalVisible(false);
+                }}
                 style={{
                   backgroundColor: '#E2E8F0',
                   paddingHorizontal: 20,
@@ -1257,6 +1274,22 @@ ${movesText}`;
                 }}
               >
                 <Text style={{ color: '#475569', fontSize: 14, fontWeight: 'bold' }}>Close</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleCopy}
+                style={{
+                  backgroundColor: copied ? '#10B981' : '#2563EB',
+                  paddingHorizontal: 20,
+                  paddingVertical: 12,
+                  borderRadius: 12,
+                  minWidth: 120,
+                  alignItems: 'center'
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 'bold' }}>
+                  {copied ? 'Copied!' : 'Copy Team'}
+                </Text>
               </Pressable>
             </View>
           </View>
