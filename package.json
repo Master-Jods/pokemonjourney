@@ -1,0 +1,22 @@
+{
+  "name": "pokejourney",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev:main": "corepack pnpm --filter @pokejourney/main-system dev",
+    "dev:catching": "corepack pnpm --filter @pokejourney/catching-subsystem dev:local",
+    "dev:leveling": "corepack pnpm --filter @pokejourney/leveling-subsystem dev",
+    "build": "corepack pnpm --filter @pokejourney/main-system exec tsc --noEmit",
+    "build:catching": "corepack pnpm --filter @pokejourney/catching-subsystem build",
+    "build:leveling": "corepack pnpm --filter @pokejourney/leveling-subsystem build"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.2"
+  },
+  "packageManager": "pnpm@11.5.0+sha512.dbfcc4f81cf48597afd4bc391ffdf12c11f1a9fb83a395bfa6b0a2d9cc2fd8ffebafdb1ccbd529632153f793904c2615b7f09fe1a345473fd1c35845172a8eb1"
+}

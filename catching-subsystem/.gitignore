@@ -1,0 +1,5 @@
+node_modules/
+dist/
+src/backend/server_out.log
+src/backend/server_err.log
+.vercel

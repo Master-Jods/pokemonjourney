@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pokejourney.local/schemas/subsystem-result.schema.json",
+  "title": "PokeJourney Subsystem Result",
+  "type": "object",
+  "required": [
+    "playerName",
+    "gameName",
+    "result",
+    "levelGain",
+    "coinsEarned",
+    "sourceSystem"
+  ],
+  "properties": {
+    "playerName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pokemonName": {
+      "type": "string"
+    },
+    "gameName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "result": {
+      "type": "string",
+      "examples": [
+        "caught",
+        "win",
+        "loss",
+        "completed"
+      ]
+    },
+    "levelGain": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "coinsEarned": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sourceSystem": {
+      "type": "string",
+      "examples": [
+        "catching-subsystem",
+        "leveling-subsystem"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

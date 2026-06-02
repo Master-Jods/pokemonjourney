@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "PokeJourney",
+    "slug": "pokejourney-main-system",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ef4444"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
