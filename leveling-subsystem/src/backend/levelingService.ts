@@ -257,7 +257,7 @@ async function checkGameCooldown(playerId: string, gameName: string): Promise<{ 
       
       attemptsLeft -= 1;
       if (attemptsLeft === 0) {
-        cooldownUntil = logTime + 10 * 60 * 1000;
+        cooldownUntil = logTime + 2 * 60 * 1000;
       }
     }
   }

@@ -20,7 +20,7 @@ import {
   Image,
   ImageSourcePropType,
   Modal,
-  Pressable as RN_Pressable,
+  Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -29,14 +29,6 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-
-const Pressable = React.forwardRef(({ onPress, ...props }: any, ref: any) => {
-  const handlePress = (e: any) => {
-    playClickSound();
-    if (onPress) onPress(e);
-  };
-  return <RN_Pressable ref={ref} onPress={handlePress} {...props} />;
-});
 import Svg, { Rect } from 'react-native-svg';
 import {
   Backpack,
@@ -178,7 +170,15 @@ export default function App() {
   const [error, setError] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [playerId, setPlayerId] = useState('');
-  const [page, setPage] = useState<Page>('start');
+  const [page, _setPage] = useState<Page>('start');
+  const setPage = (newPage: Page | ((prev: Page) => Page)) => {
+    playClickSound();
+    if (typeof newPage === 'function') {
+      _setPage(newPage);
+    } else {
+      _setPage(newPage);
+    }
+  };
   const [coins, setCoins] = useState(100);
   const [ownedPokemon, setOwnedPokemon] = useState<OwnedPokemon[]>([]);
   const [inventory, setInventory] = useState<Record<string, number>>({});
@@ -294,6 +294,7 @@ export default function App() {
   const showNav = !!playerName && page !== 'start' && page !== 'rewarding';
 
  function startJourney() {
+  playClickSound();
   const trimmed = nameInput.trim();
 
   if (!trimmed) {
@@ -351,7 +352,8 @@ export default function App() {
 }
 
   function chooseStarter(pokemon: PokemonData) {
-  const hasStarter = ownedPokemon.some(owned => owned.source === 'Starter');
+    playClickSound();
+    const hasStarter = ownedPokemon.some(owned => owned.source === 'Starter');
 
   if (hasStarter) {
     setPage('dashboard');
@@ -386,6 +388,7 @@ export default function App() {
 }
 
   async function buyItem(item: StoreItem) {
+    playClickSound();
     if (coins < item.price) return;
     setStoreError('');
     setIsBuyingItem(item.name);
@@ -409,6 +412,7 @@ export default function App() {
     currentName: string,
     nextName: string,
   ) {
+    playClickSound();
     if (stone && (inventory[stone] ?? 0) < 1) return;
     setStoreError('');
     try {
@@ -448,6 +452,7 @@ export default function App() {
   }
 
   function switchTrainer() {
+    playClickSound();
     setNameInput('');
     setError('');
     setPlayerName('');
@@ -1064,6 +1069,7 @@ function PokedexScreen({ ownedPokemon }: { ownedPokemon: OwnedPokemon[] }) {
   }, [ownedPokemon]);
 
   const toggleSelect = (id: string) => {
+    playClickSound();
     if (selectedIds.includes(id)) {
       setSelectedIds(prev => prev.filter(x => x !== id));
     } else {
@@ -1320,7 +1326,11 @@ function InventoryScreen({
   onEvolve: (owned: OwnedPokemon, nextId: string, stone: string, currentName: string, nextName: string) => void;
   error: string;
 }) {
-  const [selectedStone, setSelectedStone] = useState<StoreItem | null>(null);
+  const [selectedStone, _setSelectedStone] = useState<StoreItem | null>(null);
+  const setSelectedStone = (stone: StoreItem | null) => {
+    playClickSound();
+    _setSelectedStone(stone);
+  };
   const items = STORE_ITEMS.filter(item => (inventory[item.name] ?? 0) > 0);
   if (!items.length) return <InfoScreen icon="🎒" title="Empty Bag" message="Buy items from the store to fill your inventory." />;
 
@@ -1444,6 +1454,7 @@ function RewardingScreen({
   const colors = GYM_COLORS[gymNum] || GYM_COLORS['1'];
 
   const handleReward = async () => {
+    playClickSound();
     if (!recipientName.trim()) {
       setRewardError('Please enter a trainer name.');
       setRewardSuccess('');
@@ -2385,10 +2396,15 @@ function ScalePressable({
 }) {
   const scale = useRef(new Animated.Value(1)).current;
 
+  const handlePress = () => {
+    playClickSound();
+    if (onPress) onPress();
+  };
+
   return (
     <AnimatedPressable
       disabled={disabled}
-      onPress={onPress}
+      onPress={handlePress}
       onPressIn={() => Animated.spring(scale, { toValue: 0.96, useNativeDriver: true }).start()}
       onPressOut={() => Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start()}
       style={[style, { transform: [{ scale }] }]}
