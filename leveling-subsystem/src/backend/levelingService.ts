@@ -135,7 +135,6 @@ export async function loadPlayerPokemon(playerId: string): Promise<PlayerPokemon
     .select('id, player_id, pokedex_id, level, source, status')
     .eq('player_id', playerId)
     .ilike('status', 'active')
-    .in('source', OWNED_POKEMON_SOURCES)
     .order('id', { ascending: true });
 
   if (error) {
@@ -308,7 +307,6 @@ export async function saveLevelingResult(input: SaveLevelingResultInput): Promis
     .eq('player_id', input.player_id)
     .eq('pokedex_id', input.pokemon_id)
     .ilike('status', 'active')
-    .in('source', OWNED_POKEMON_SOURCES)
     .single();
 
   if (pokedexReadError) {
@@ -326,8 +324,7 @@ export async function saveLevelingResult(input: SaveLevelingResultInput): Promis
     .eq('id', input.pokedex_id)
     .eq('player_id', input.player_id)
     .eq('pokedex_id', input.pokemon_id)
-    .ilike('status', 'active')
-    .in('source', OWNED_POKEMON_SOURCES);
+    .ilike('status', 'active');
 
   if (pokedexUpdateError) {
     throw new Error(pokedexUpdateError.message);
